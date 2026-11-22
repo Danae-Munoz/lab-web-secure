@@ -1,0 +1,5 @@
+venv/
+vulnerable.db
+app.log
+zap-report.html
+__pycache__/
