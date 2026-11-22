@@ -32,14 +32,28 @@ pipeline {
             }
         }
 
-        stage('3. Test') {
+        stage('3. Security Review') {
+            steps {
+                echo "==> [Jenkins] Revisión de seguridad: análisis de código y de dependencias..."
+                sh '''
+                    . ${VENV_NAME}/bin/activate
+                    pip install bandit pip-audit
+                    echo "----- BANDIT: análisis estático del código -----"
+                    bandit -r app.py init_db.py || true
+                    echo "----- PIP-AUDIT: vulnerabilidades en dependencias -----"
+                    pip-audit -r requirements.txt || true
+                '''
+            }
+        }
+
+        stage('4. Test') {
             steps {
                 echo "==> [Jenkins] [TEST] Aquí se simulan las pruebas unitarias..."
                 sh 'echo "Pruebas superadas con éxito en el workspace de Jenkins."'
             }
         }
 
-        stage('4. Deploy') {
+        stage('5. Deploy') {
             steps {
                 echo "==> [Jenkins] Desplegando la aplicación..."
                 sh '''
