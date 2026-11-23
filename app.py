@@ -3,6 +3,11 @@ from werkzeug.security import check_password_hash
 import sqlite3
 import secrets
 import os
+from werkzeug.serving import WSGIRequestHandler
+
+# CORRECCIÓN: la cabecera Server deja de revelar la versión de Werkzeug y de Python
+WSGIRequestHandler.server_version = 'webserver'
+WSGIRequestHandler.sys_version = ''
 
 app = Flask(__name__)
 
@@ -34,11 +39,15 @@ def db_query(query, params=()):
 @app.after_request
 def cabeceras_de_seguridad(resp):
     # CORRECCIÓN: cabeceras de seguridad HTTP
-    resp.headers['Content-Security-Policy'] = "default-src 'self'; frame-ancestors 'none'; form-action 'self'"
+    resp.headers['Content-Security-Policy'] = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
     resp.headers['X-Frame-Options'] = 'DENY'
     resp.headers['X-Content-Type-Options'] = 'nosniff'
     resp.headers['Referrer-Policy'] = 'no-referrer'
     resp.headers['Cache-Control'] = 'no-store'
+    resp.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    resp.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
+    resp.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+    resp.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
     return resp
 
 
